@@ -1,0 +1,36 @@
+{
+  "name": "dimensionist",
+  "version": "1.0.0",
+  "description": "CouchDB daemon to extract dimensions from image attachments.",
+  "main": "index.js",
+  "preferGlobal": true,
+  "bin": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jo/dimensionist"
+  },
+  "author": "Johannes J. Schmidt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jo/dimensionist/issues"
+  },
+  "homepage": "https://github.com/jo/dimensionist",
+  "keywords": [
+    "couchdb",
+    "couchdb-worker",
+    "worker",
+    "os_daemon",
+    "attachments",
+    "image-processing"
+  ],
+  "dependencies": {
+    "couch-daemon": "^1.2.2",
+    "image-size": "^0.2.4",
+    "nano": "^5.9.1",
+    "async": "^0.8.0",
+    "highland": "^1.24.1"
+  }
+}
