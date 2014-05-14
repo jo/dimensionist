@@ -1,6 +1,9 @@
 # dimensionist
 CouchDB daemon to extract dimensions from image attachments.
 
+# This is WIP!
+and not ready.
+
 ## Usage
 dimensionist can be used as `os_daemon` and from the command line.
 
