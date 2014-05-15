@@ -1,10 +1,10 @@
-# dimensionist
+# Dimensionist
 CouchDB daemon to extract dimensions from image attachments.
 
 ## Usage
-dimensionist can be used as `os_daemon` and from the command line.
+Dimensionist can be used as `os_daemon` and from the command line.
 
-When dimensionist finds an image it will extract the dimensions
+When Dimensionist finds an image it will extract the dimensions
 ([http-image-size](https://github.com/jo/http-image-size)) and populate a
 `dimensions` property:
 ```json
@@ -39,7 +39,7 @@ Currently JPEG, PNG and GIF images are supported.
 `dimensionist --blacklist _users,_replicator`
 
 ### Daemon
-Add dimensionist to `os_daemons` config section:
+Add Dimensionist to `os_daemons` config section:
 
 ```ini
 [os_daemons]
