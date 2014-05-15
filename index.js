@@ -12,7 +12,7 @@ var _ = require('highland');
 var daemon = require('couch-daemon');
 var async = require('async');
 var nano = require('nano');
-var sizeOf = require('image-size');
+var sizeOf = require('http-image-size');
 
 
 var supportedContentTypes = [
@@ -33,73 +33,68 @@ daemon({ include_docs: true }, function(url, options) {
         && data.doc._attachments;
     }
     
-    function getSize(db, id, name, bytes, done) {
-      couch.request({
-        db: db,
-        doc: id,
-        att: name,
-        method: 'GET',
-        encoding: null,
-        dont_parse: true,
-        headers: {
-          Range: 'bytes=0-' + bytes
-        }
-      }, function(err, body) {
-        var dimension = {};
-        
-        console.log(bytes, id);
+    function getSize(db, id, name, done) {
+      var url = [
+        couch.config.url,
+        encodeURIComponent(db),
+        encodeURIComponent(id),
+        encodeURIComponent(name)
+      ].join('/');
 
-        try {
-          dimension = sizeOf(body);
-        } catch(e) {
-          console.log(e);
-
-          // if (body.length < bytes) {
-          //   console.log('something went wrong...');
-          //   return done({ error: 'get_size', reason: e });
-          // }
-
-          // return getSize(db, id, name, bytes * 2, done);
-        }
-        
-        console.log(bytes, body.length, dimension, db, id, name);
-
-        done(null, dimension);
-      });
+      sizeOf(url, done);
     };
 
-    function process(data, done) {
+
+    function processDocument(data, done) {
       var names = Object.keys(data.doc._attachments)
         .filter(function(name) {
           return supportedContentTypes.indexOf(data.doc._attachments[name].content_type) > -1;
+        })
+        .filter(function(name) {
+          return !data.doc.dimensions
+            || !data.doc.dimensions[name]
+            || !data.doc.dimensions[name].revpos
+            || data.doc.dimensions[name].revpos < data.doc._attachments[name].revpos;
         });
+
+      if (!names.length) {
+        return done(null, data);
+      }
 
       done(null, {
         type: 'log',
+        level: 'debug',
         message: 'processing: ' + data.db_name + '/' + data.id + '@' + data.seq + ' - ' + names.join(',')
       });
 
       data.doc.dimensions = {};
 
       async.each(names, function(name, next) {
-        getSize(data.db_name, data.doc._id, name, 256, function(err, dimension) {
-          if (err) {
-            return done(err);
+        getSize(data.db_name, data.doc._id, name, function(err, dimension, bytes) {
+          if (!err) {
+            data.doc.dimensions[name] = _.extend({
+              revpos: data.doc._attachments[name].revpos
+            }, dimension);
           }
 
-          data.doc.dimensions[name] = dimension;
+          next(err);
         });
       }, function(err, resp) {
         if (err) {
-          done({ error: 'dimension_extract_error' });
+          return done({ stream: 'dimensionist', error: 'dimension_extract_error', reason: err });
         }
-        // couch.use(data.db_name).insert(data.doc, data.doc._id, function(err, resp) {
-        //   if (err) {
-        //     done({ error: 'dimension_extract_error' });
-        //   }
-        //   done(null, resp)
-        //   // done(null, data);
-        // });
+
+        couch.use(data.db_name).insert(data.doc, data.doc._id, function(err, resp) {
+          if (err) {
+            done({ stream: 'dimensionist', error: 'dimension_extract_error', reason: err });
+          } else {
+            done(null, {
+              type: 'log',
+              message: 'extracted image dimensions for ' + data.db_name + '/' + data.id + '@' + data.seq
+            });
+          }
+          done(null, data);
+        });
       });
     }
 
@@ -112,7 +107,7 @@ daemon({ include_docs: true }, function(url, options) {
 
           source.pause();
 
-          process(data, function(err, d) {
+          processDocument(data, function(err, d) {
             push(err, d);
             
             source.resume();
