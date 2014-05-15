@@ -1,6 +1,6 @@
 {
   "name": "dimensionist",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CouchDB daemon to extract dimensions from image attachments.",
   "main": "index.js",
   "preferGlobal": true,
@@ -27,8 +27,8 @@
     "image-processing"
   ],
   "dependencies": {
+    "couch-daemon": "^1.2.3",
     "async": "^0.8.0",
-    "couch-daemon": "^1.2.2",
     "highland": "^1.24.1",
     "http-image-size": "^1.0.0",
     "nano": "^5.9.1"
