@@ -39,7 +39,7 @@ Currently JPEG, PNG and GIF images are supported.
 `dimensionist --blacklist _users,_replicator`
 
 ### Daemon
-Add couchmagick to `os_daemons` config section:
+Add dimensionist to `os_daemons` config section:
 
 ```ini
 [os_daemons]
