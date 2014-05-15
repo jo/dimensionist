@@ -7,9 +7,19 @@ and not ready.
 ## Usage
 dimensionist can be used as `os_daemon` and from the command line.
 
+## Installation
+```shell
+npm install -g dimensionist
+```
+
 ### Client
 ```shell
 dimensionist
+```
+
+Options can be set:
+```shell
+dimensionist --blacklist _users,_replicator
 ```
 
 ### Daemon
