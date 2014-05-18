@@ -8,6 +8,8 @@
  *
  */
 
+var pkg = require('./package.json');
+
 var _ = require('highland');
 var daemon = require('couch-daemon');
 var async = require('async');
@@ -21,7 +23,7 @@ var supportedContentTypes = [
   'image/gif'
 ];
 
-daemon({ include_docs: true }, function(url, options) {
+daemon({ name: pkg.name, include_docs: true }, function(url, options) {
   var couch = nano(url);
 
   return function(source) {
