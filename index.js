@@ -101,6 +101,12 @@ daemon({ name: pkg.name, include_docs: true }, function(url, options) {
     }
 
     var target = _(function(push, done) {
+      push(null, {
+        type: 'log',
+        level: 'debug',
+        message: 'Using configuration: ' + JSON.stringify(options).replace(/"password":"[^"]*"/, '"password":"***"')
+      });
+
       source
         .on('data', function(data) {
           if (!data || !check(data)) {
