@@ -23,7 +23,11 @@ var supportedContentTypes = [
   'image/gif'
 ];
 
-daemon({ name: pkg.name, include_docs: true }, function(url, options) {
+daemon({
+  name: pkg.name,
+  version: pkg.version,
+  include_docs: true
+}, function(url, options) {
   var couch = nano(url);
 
   return function(source) {
