@@ -39,7 +39,7 @@ Currently JPEG, PNG and GIF images are supported.
 `dimensionist --blacklist _users,_replicator`
 
 ### Daemon
-Add Dimensionist to `os_daemons` config section:
+Add Dimensionist to `os_daemons` config section (eg. in local.ini):
 
 ```ini
 [os_daemons]
@@ -51,9 +51,9 @@ dimensionist = dimensionist
 ; Optional username and password, used by the workers to access the database
 username = mein-user
 password = secure
-; Whitelist databases: only the databases above are used (seperate with comma)
+; Only documents in the databases above are processed (seperate with comma)
 ; whitelist = mydb,otherdb
-; Blacklist: ignore the following databases (again comma seperated list)
+; Ignore the following databases (again comma seperated list)
 blacklist = _users,_replicator
 ```
 
