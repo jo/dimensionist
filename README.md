@@ -1,5 +1,5 @@
 # Dimensionist
-CouchDB daemon to extract dimensions from image attachments.
+[CouchDB daemon](https://github.com/jo/couch-daemon) to extract dimensions from image attachments.
 
 ## Usage
 Dimensionist can be used as `os_daemon` and from the command line.
