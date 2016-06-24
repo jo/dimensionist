@@ -48,20 +48,19 @@ daemon({
       ].join('/');
 
       sizeOf(url, done);
-    };
-
+    }
 
     function processDocument(data, done) {
       var names = Object.keys(data.doc._attachments)
-        .filter(function(name) {
-          return supportedContentTypes.indexOf(data.doc._attachments[name].content_type) > -1;
-        })
-        .filter(function(name) {
-          return !data.doc.dimensions
-            || !data.doc.dimensions[name]
-            || !data.doc.dimensions[name].revpos
-            || data.doc.dimensions[name].revpos < data.doc._attachments[name].revpos;
-        });
+      .filter(function(name) {
+        return supportedContentTypes.indexOf(data.doc._attachments[name].content_type) > -1;
+      })
+      .filter(function(name) {
+        return !data.doc.dimensions
+          || !data.doc.dimensions[name]
+          || !data.doc.dimensions[name].revpos
+          || data.doc.dimensions[name].revpos < data.doc._attachments[name].revpos;
+      });
 
       if (!names.length) {
         return done(null, data);
@@ -73,22 +72,28 @@ daemon({
         message: 'processing: ' + data.db_name + '/' + data.id + '@' + data.seq + ' - ' + names.join(',')
       });
 
-      data.doc.dimensions = {};
-
-      async.each(names, function(name, next) {
+      async.map(names, function(name, next) {
         getSize(data.db_name, data.doc._id, name, function(err, dimension, bytes) {
           if (!err) {
-            data.doc.dimensions[name] = _.extend({
+            var res = _.extend({
+              name: name,
               revpos: data.doc._attachments[name].revpos
             }, dimension);
+            next(null, res);
+          } else {
+            next(err);
           }
-
-          next(err);
         });
-      }, function(err, resp) {
+      }, function(err, results) {
         if (err) {
           return done({ stream: 'dimensionist', error: 'dimension_extract_error', reason: err });
         }
+        data.doc.dimensions = data.doc.dimensions || {};
+        results.forEach(function(dimension) {
+          var name = dimension.name;
+          delete dimension.name;
+          data.doc.dimensions[name] = dimension;
+        });
 
         couch.use(data.db_name).insert(data.doc, data.doc._id, function(err, resp) {
           if (err) {
